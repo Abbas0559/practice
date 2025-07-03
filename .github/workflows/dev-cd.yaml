@@ -16,8 +16,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      - name: Build site with Parcel
-        run: npx parcel build src/*.html --dist-dir dist
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Parcel
+        run: npm install -g parcel
+
+      - name: Build site
+        run: npx parcel build src/index.html --dist-dir dist --public-url ./
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
