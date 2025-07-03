@@ -1,24 +1,36 @@
-name: Production CD - Manual Deploy
+name: Deploy to Production Environment
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: production-env
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to Production
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Build site with Parcel
+        run: npx parcel build src/*.html --dist-dir dist
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production-env
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
