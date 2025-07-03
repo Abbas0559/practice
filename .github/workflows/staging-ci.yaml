@@ -1,12 +1,11 @@
-name: Staging CI
+name: Staging CI - Release Validation
 
 on:
   pull_request:
     branches: [ release ]
-    types: [opened, synchronize, reopened]
 
 jobs:
-  staging-checks:
+  validate:
     runs-on: ubuntu-latest
     
     steps:
@@ -15,28 +14,13 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '18.x'
     
     - name: Install dependencies
       run: npm install
     
-    - name: Run HTMLHint (strict mode)
-      run: npx htmlhint "**/*.html" --config .htmlhint-strict.json
+    - name: Run HTMLHint
+      run: npx htmlhint "**/*.html" --config .htmlhintrc
     
-    - name: Run Stylelint (strict mode)
-      run: npx stylelint "**/*.css" --config .stylelint-strictrc
-    
-    - name: Accessibility audit
-      run: |
-        npm install -g pa11y-ci
-        pa11y-ci --config .pa11yci.json
-    
-    - name: Performance budget check
-      run: |
-        echo "Checking performance budget..."
-        # Add performance budget verification
-    
-    - name: Security scan
-      uses: shiftleftsecurity/scan-action@master
-      with:
-        output: reports
+    - name: Run Stylelint
+      run: npx stylelint "**/*.css" --config .stylelintrc

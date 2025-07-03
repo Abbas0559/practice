@@ -1,47 +1,19 @@
-name: Staging CD
+name: Staging CD - Auto Deploy
 
 on:
   push:
     branches: [ release ]
 
 jobs:
-  deploy-to-staging:
+  deploy:
     runs-on: ubuntu-latest
     environment: staging-env
-    needs: staging-checks
     
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Install dependencies
-      run: npm install
-    
-    - name: Build for staging
-      run: |
-        echo "Building optimized version for staging..."
-        # Add staging-specific build commands
     
     - name: Deploy to Staging
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        destination_dir: staging
-        keep_files: true
-    
-    - name: Run integration tests
-      run: |
-        echo "Running integration tests against staging environment..."
-        # Add integration test commands
-    
-    - name: Notify team
-      if: always()
-      uses: rtCamp/action-slack-notify@v2
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_MESSAGE: "Staging deployment completed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        publish_dir: ./

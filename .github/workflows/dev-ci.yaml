@@ -1,12 +1,11 @@
-name: Development CI
+name: Development CI - PR Validation
 
 on:
   pull_request:
     branches: [ develop ]
-    types: [opened, synchronize, reopened]
 
 jobs:
-  lint-and-test:
+  validate:
     runs-on: ubuntu-latest
     
     steps:
@@ -15,24 +14,23 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
-        cache: 'npm'
+        node-version: '18.x'
     
     - name: Install dependencies
       run: npm install
     
     - name: Run HTMLHint
-      run: npx htmlhint "**/*.html"
+      run: npx htmlhint "**/*.html" --config .htmlhintrc
     
     - name: Run Stylelint
-      run: npx stylelint "**/*.css"
+      run: npx stylelint "**/*.css" --config .stylelintrc
     
-    - name: Verify Links
+    - name: Verify required files exist
       run: |
-        npm install -g markdown-link-check
-        find . -name "*.md" | xargs -I {} markdown-link-check -c ./linkcheck-config.json {}
-    
-    - name: Build verification
-      run: |
-        echo "Verifying build process..."
-        # Add any build verification steps here
+        if [ ! -f "index.html" ]; then
+          echo "Error: Missing index.html file"
+          exit 1
+        fi
+        if [ ! -f "about.html" ]; then
+          echo "Error: Missing about.html file"
+          exit

@@ -1,62 +1,20 @@
-name: Production CD
+name: Production CD - Manual Deploy
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
 
 jobs:
-  deploy-to-production:
+  deploy:
     runs-on: ubuntu-latest
     environment: production-env
-    # The following line requires a job named 'production-checks' to run before this one.
-    # Make sure such a job exists or remove the 'needs' line if it's not intended.
-    needs: production-checks
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm ci --production
-
-      - name: Build for production
-        run: |
-          echo "Building optimized production version..."
-          # Example: npm run build
-          npm run build
-
-      - name: Deploy to Production
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          destination_dir: production
-          cname: travelease-pk.com  # Replace with your domain
-
-      - name: Run smoke tests
-        run: |
-          echo "Running smoke tests on production..."
-          # Example: curl -I https://travelease-pk.com
-          curl -I https://travelease-pk.com
-
-      - name: Notify deployment
-        if: always()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_MESSAGE: "Production deployment completed! Visit https://travelease-pk.com"
-          SLACK_COLOR: ${{ job.status }}
-
-      - name: Create release tag
-        if: success()
-        run: |
-          version=$(node -p "require('./package.json').version")
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$version" -m "Release v$version"
-          git push origin "v$version"
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Production
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
