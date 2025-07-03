@@ -1,31 +1,43 @@
-name: Development CI - PR Validation
+name: Develop Branch PR Validation
 
 on:
   pull_request:
-    branches: [ develop ]
+    branches: [develop]
 
 jobs:
-  validate:
+  lint:
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v3
-  
-    - name: Install dependencies
-      run: npm install
-    
-    - name: Run HTMLHint
-      run: npx htmlhint "**/*.html" --config .htmlhintrc
-    
-    - name: Run Stylelint
-      run: npx stylelint "**/*.css" --config .stylelintrc
-    
-    - name: Verify required files exist
-      run: |
-        if [ ! -f "index.html" ]; then
-          echo "Error: Missing index.html file"
-          exit 1
-        fi
-        if [ ! -f "about.html" ]; then
-          echo "Error: Missing about.html file"
-          exit
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint HTML
+        run: npx htmlhint "**/*.html"
+
+      - name: Lint CSS
+        run: npx stylelint "**/*.css"
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Website
+        run: npx parcel build src/*.html --dist-dir build
