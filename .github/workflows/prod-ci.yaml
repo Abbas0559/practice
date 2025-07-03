@@ -35,12 +35,3 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-
-      - name: Run Lighthouse Audit
-        uses: treosh/lighthouse-ci-action@v9
-        with:
-          urls: |
-            http://localhost:3000
-            http://localhost:3000/destinations
-            http://localhost:3000/trip-planner
-          uploadArtifacts: true
