@@ -1,0 +1,49 @@
+name: Production CI
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  production-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm ci --production
+    
+    - name: Run security audit
+      run: npm audit --production
+    
+    - name: Run final HTML validation
+      run: |
+        npm install -g html-validate
+        html-validate --config .htmlvalidate.json "**/*.html"
+    
+    - name: Run Lighthouse audit
+      uses: treosh/lighthouse-ci-action@v9
+      with:
+        urls: |
+          http://localhost:8080/index.html
+          http://localhost:8080/about.html
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+    
+    - name: Check for broken links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+    
+    - name: Verify production build
+      run: |
+        echo "Verifying production build..."
+        # Add production build verification

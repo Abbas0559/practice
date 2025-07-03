@@ -1,0 +1,39 @@
+name: Development CD
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev-env
+    needs: lint-and-test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Build project
+      run: |
+        echo "Building project for development..."
+        # Add build commands here
+    
+    - name: Deploy to Development
+      run: |
+        echo "Deploying to development environment..."
+        # Add deployment commands here
+        # For GitHub Pages deployment you might use:
+        # git push origin `git subtree split --prefix dist develop`:gh-pages --force
+        
+    - name: Post-deployment test
+      run: |
+        echo "Running post-deployment tests..."
+        # Add smoke tests or other verification here
